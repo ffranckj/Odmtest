@@ -1,88 +1,58 @@
-name: Build Plugin
+name: Build
 
-concurrency:
-  group: build
+# https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#concurrency
+concurrency: 
+  group: "build"
   cancel-in-progress: true
 
 on:
   push:
     branches:
-      - main      # se il tuo branch è main
-      - master    # oppure master, nel dubbio
+      # choose your default branch
+      - master
+      - main
     paths-ignore:
       - '*.md'
-  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Echo branch & SHA
+      - name: Checkout
+        uses: actions/checkout@master
+        with:
+          path: "src"
+
+      - name: Checkout builds
+        uses: actions/checkout@master
+        with:
+          ref: "builds"
+          path: "builds"
+      
+      - name: Clean old builds
+        run: rm $GITHUB_WORKSPACE/builds/*.cs3
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v1
+        with:
+          java-version: 17
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Build Plugins
         run: |
-          echo "Triggered on ${{ github.ref }} (SHA ${{ github.sha }})"
-
-      - name: Checkout sorgenti
-        uses: actions/checkout@v3
-        with:
-          path: src
-
-      - name: Setup Java 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Cache Gradle
-        uses: actions/cache@v3
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('src/**/*.gradle*','src/**/gradle-wrapper.properties') }}
-
-      - name: Build Plugin
-        working-directory: src
-        run: |
+          cd $GITHUB_WORKSPACE/src
           chmod +x gradlew
-          ./gradlew clean make makePluginsJson
+          ./gradlew make makePluginsJson
+          cp **/build/*.cs3 $GITHUB_WORKSPACE/builds
+          cp build/plugins.json $GITHUB_WORKSPACE/builds
 
-      - name: Upload artefatti
-        uses: actions/upload-artifact@v3
-        with:
-          name: plugin-builds
-          path: |
-            src/**/build/*.cs3
-            src/**/build/plugins.json
-
-  publish:
-    needs: build
-    runs-on: ubuntu-latest
-    if: |
-      github.ref == 'refs/heads/main' ||
-      github.ref == 'refs/heads/master'
-
-    steps:
-      - name: Checkout branch builds
-        uses: actions/checkout@v3
-        with:
-          ref: builds
-          path: builds-repo
-
-      - name: Download artefatti
-        uses: actions/download-artifact@v3
-        with:
-          name: plugin-builds
-          path: plugin-builds
-
-      - name: Copia build su builds
+      - name: Push builds
         run: |
-          cp plugin-builds/*.cs3 builds-repo/
-          cp plugin-builds/plugins.json builds-repo/
-
-      - name: Commit & Push su builds
-        working-directory: builds-repo
-        run: |
-          git config user.email "actions@github.com"
-          git config user.name  "GitHub Actions"
+          cd $GITHUB_WORKSPACE/builds
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
           git add .
-          git commit -m "Build ${{ github.sha }}" || echo "No changes to commit"
-          git push origin builds
+          git commit --amend -m "Build $GITHUB_SHA" || exit 0   # do not error if nothing to commit
+          git push --force
