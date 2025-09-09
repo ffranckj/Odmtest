@@ -1,9 +1,8 @@
-// builds/repo.json
 {
-  "name": "OdmVOD Plugins",
-  "description": "Estensioni CloudStream per contenuti da odmvod.org",
+  "name": "ODMVOD Repository",
+  "description": "Plugin ODMVOD per streaming da odmvod.org",
   "manifestVersion": 1,
   "pluginLists": [
-    "https://raw.githubusercontent.com/ffranckj/Odmtest/master/builds/plugins.json"
+    "https://raw.githubusercontent.com/ffranckj/Odmtest/builds/plugins.json"
   ]
 }
