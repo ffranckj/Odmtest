@@ -1,0 +1,8 @@
+{
+  "name": "ODMVOD Repository",
+  "description": "Plugin ODMVOD per streaming da odmvod.org",
+  "manifestVersion": 1,
+  "pluginLists": [
+    "https://raw.githubusercontent.com/ffranckj/Odmtest/builds/plugins.json"
+  ]
+}
