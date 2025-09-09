@@ -1,8 +1,9 @@
 {
   "name": "ODMVOD Repository",
-  "description": "Plugin ODMVOD per streaming da odmvod.org",
+  "iconUrl": "https://raw.githubusercontent.com/doGior/doGiorsHadEnough/master/repo_icon.png",
+  "description": "Repository",
   "manifestVersion": 1,
   "pluginLists": [
-    "https://raw.githubusercontent.com/ffranckj/Odmtest/builds/plugins.json"
+    "https://raw.githubusercontent.com/doGior/doGiorsHadEnough/builds/plugins.json"
   ]
 }
