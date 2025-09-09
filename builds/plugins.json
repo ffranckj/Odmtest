@@ -1,0 +1,13 @@
+// builds/plugins.json
+[
+  {
+    "id": 987654321,
+    "name": "odmvod",
+    "package": "com.example.providers.OdmVodProvider",
+    "version": "1.0.0",
+    "minAppVersion": 91,
+    "icon": "",
+    "description": "Estensione per film da odmvod.org",
+    "tags": ["it","movies"]
+  }
+]
